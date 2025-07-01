@@ -1,0 +1,39 @@
+name: Analizar y Desplegar - Lab Clínico
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+env:
+  DOCKER_PROJECT_NAME: 'labclinico2025'
+  APP_CONTAINER_NAME: 'springboot_backend'
+  SONAR_HOST_URL: 'http://localhost:9000'
+  SONAR_TOKEN: 'squ_da57b59a6020d4913af13e502e11b1d756b16664'
+
+jobs:
+  analyze-and-deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Clonar código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compilar el backend
+        run: mvn -B clean package -DskipTests
+
+      - name: Analizar con SonarQube
+        run: |
+          mvn sonar:sonar \
+            -Dsonar.projectKey=lab-clinico \
+            -Dsonar.projectName="Lab Clinico" \
+            -Dsonar.host.url=${{ env.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ env.SONAR_TOKEN }}
+
+      - name: Desplegar con Docker Compose
+        run: |
+          docker compose -p ${{ env.DOCKER_PROJECT_NAME }} down -v --remove-orphans || true
+          docker compose -p ${{ env.DOCKER_PROJECT_NAME }} up -d --build
+          docker compose -p ${{ env.DOCKER_PROJECT_NAME }} ps
+          docker logs --tail 100 ${{ env.APP_CONTAINER_NAME }}
