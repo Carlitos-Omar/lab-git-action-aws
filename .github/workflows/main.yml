@@ -8,7 +8,7 @@ on:
 env:
   DOCKER_PROJECT_NAME: 'labclinico2025'
   APP_CONTAINER_NAME: 'springboot_backend'
-  SONAR_HOST_URL: 'http://localhost:9000'
+  SONAR_HOST_URL: 'http://34.238.122.83:9000'
   SONAR_TOKEN: 'squ_da57b59a6020d4913af13e502e11b1d756b16664'
 
 jobs:
